@@ -98,7 +98,7 @@
 		<script src="{{ asset('js/custom.js')}}"></script>
 
 
-		<script>
+		<!-- <script>
 			// Selecciona todos los inputs
 			var inputs = document.querySelectorAll('input[type="text"], input[type="number"]');
 		
@@ -120,7 +120,7 @@
 				input.select();
 			}
 
-		</script>
+		</script> -->
 
 
         @stack('plugin-scripts')

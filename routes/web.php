@@ -63,7 +63,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/cajacobros-cerrar', 'App\Http\Controllers\CajaCobrarController@cerrar')->name('cajacobrar.cerrar');
     Route::post('/user-cambiar', 'App\Http\Controllers\UserController@cambiar')->name('user.cambiar');
     Route::delete('/destroyorden', 'App\Http\Controllers\VentaController@destroyorden')->name('venta.destroyorden');
-
+    Route::post('ventas/producto/barTicketPDF', 'App\Http\Controllers\ProductoController@barTicketPDF')->name('producto.barTicketPDF');
     Route::get('/facturacion/facturacion-notas', 'App\Http\Controllers\FacturacionController@facturaciontrabajo')->name('facturacion.notaventa');
     Route::post('facturacion/facturaciontrabajoguardar', 'App\Http\Controllers\FacturacionController@facturaciontrabajoguardar')->name('facturacion.facturaciontrabajoguardar');
     Route::get('/facturacion/facturacion', 'App\Http\Controllers\FacturacionController@listado')->name('facturacion.listado');

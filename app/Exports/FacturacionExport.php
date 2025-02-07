@@ -10,10 +10,8 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
-use Maatwebsite\Excel\Concerns\WithDrawings;
-use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 
-class FacturacionExport implements FromView, ShouldAutoSize, WithStyles, WithDrawings
+class FacturacionExport implements FromView, ShouldAutoSize, WithStyles
 {
     use Exportable;
 
@@ -21,16 +19,6 @@ class FacturacionExport implements FromView, ShouldAutoSize, WithStyles, WithDra
     {
     }
 
-    public function drawings()
-    {
-        $drawing = new Drawing();
-        $drawing->setName('Logo');
-        $drawing->setDescription('Zolux Cusco');
-        $drawing->setPath(public_path('storage/logo.png'));
-        $drawing->setHeight(25);
-        $drawing->setCoordinates('A1');
-        return $drawing;
-    }
 
     public function styles(Worksheet $sheet)
     {

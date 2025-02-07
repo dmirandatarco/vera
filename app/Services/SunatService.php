@@ -22,7 +22,7 @@ class SunatService
     public function getSee($company)
     {
         $see = new See();
-        $certificado = base_path('certificado_cert_out.pem');
+        $certificado = base_path('CT2412116201_cert_out.pem');
         $see->setCertificate(file_get_contents($certificado));
         $see->setService($company->production ? SunatEndpoints::FE_PRODUCCION : SunatEndpoints::FE_BETA);
         $see->setClaveSOL($company->ruc, $company->sol_user, $company->sol_pass);
@@ -36,9 +36,9 @@ class SunatService
             return (new Invoice())
                 ->setUblVersion('2.1')
                 ->setTipoOperacion('0101') // Venta - Catalog. 51
-                ->setTipoDoc($documento->codSunat) // Factura - Catalog. 01 
-                ->setSerie($documento->serie)
-                ->setCorrelativo($documento->cantidad)
+                ->setTipoDoc($venta->documento->codSunat) // Factura - Catalog. 01 
+                ->setSerie($venta->documento->serie)
+                ->setCorrelativo($venta->nume_doc)
                 ->setFechaEmision(new DateTime($venta->fecha)) // Zona horaria: Lima
                 ->setFormaPago(new FormaPagoCredito($totales['MtoImpVenta']))
                 ->setCuotas([
@@ -61,9 +61,9 @@ class SunatService
         return (new Invoice())
             ->setUblVersion('2.1')
             ->setTipoOperacion('0101') // Venta - Catalog. 51
-            ->setTipoDoc($documento->codSunat) // Factura - Catalog. 01 
-            ->setSerie($documento->serie)
-            ->setCorrelativo($documento->cantidad)
+            ->setTipoDoc($venta->documento->codSunat) // Factura - Catalog. 01 
+            ->setSerie($venta->documento->serie)
+            ->setCorrelativo($venta->nume_doc)
             ->setFechaEmision(new DateTime($venta->fecha)) // Zona horaria: Lima
             ->setFormaPago(new FormaPagoContado()) // FormaPago: Contado
             ->setTipoMoneda('PEN') // Sol - Catalog. 02

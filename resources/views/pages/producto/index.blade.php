@@ -121,12 +121,63 @@
     </div>
 </div>
 
+<div class="modal fade" id="Barras" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-center" id="text-formulariobarras" style="text-align: center"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="btn-close"></button>
+            </div>
+            <div class="modal-body" id="modal-content-to-print">
+                <h1 id="nombre-producto" style="text-align: center">Nombre del producto</h1>
+                <div id="codigo-barra" style="text-align: center"></div>
+                {{-- <h2 id="codigo-producto" style="text-align: center">Código del producto</h2> --}}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="printModalContent()">Imprimir</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="cantidadModal" tabindex="-1" aria-labelledby="cantidadModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cantidadModalLabel">Editar Cantidad</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="cantidadForm" method="POST" action="{{ route('producto.barTicketPDF') }}"  target="_blank">
+                    @csrf
+                    <input type="hidden" name="producto_id" id="productoId">
+                    <div class="mb-3">
+                        <label for="productoNombre" class="form-label">Producto</label>
+                        <input type="text" class="form-control" id="productoNombre" name="productoNombre" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label for="productoCodigo" class="form-label">Código del Producto</label>
+                        <input type="text" class="form-control" id="productoCodigo" name="productoCodigo" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cantidad" class="form-label">Cantidad</label>
+                        <input type="number" class="form-control" id="cantidad" name="cantidad" min="1" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('plugin-scripts')
     <script src="{{ asset('plugins/datatable/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('plugins/datatable/js/dataTables.bootstrap5.js') }}"></script>
     <script src="{{asset('plugins/select2/js/select2.full.min.js')}}"></script>
+    <script src="{{ asset('plugins/select2/js/jsbarcode.all.min.js') }}"></script>
 @endpush
 
 @push('custom-scripts')
@@ -148,6 +199,66 @@
     }
 </script>
 @endif
+<script>
+    function abrirModalCantidad(productoId, productoNombre, codigo) {
+        
+        document.getElementById('productoId').value = productoId;
+        document.getElementById('productoNombre').value = productoNombre;
+        document.getElementById('productoCodigo').value = codigo;
+        document.getElementById('cantidad').value = 1; 
+
+        
+        var myModal = new bootstrap.Modal(document.getElementById('cantidadModal'));
+        myModal.show();
+    }
+    function barras(id, nombre, codigo, precio) {
+        $('#text-formulariobarras').text('Información del Producto');
+        $('#nombre-producto').text(nombre);
+        // $('#codigo-producto').text('Código de producto: ' + (codigo || 'Código no detectado'));
+
+        if (codigo) {
+            $('#codigo-barra').html('<svg id="barcode"></svg>');
+            try {
+                JsBarcode("#barcode", codigo, {
+                    format: "CODE128",
+                    lineColor: "#000",
+                    width: 2,
+                    height: 50,
+                    displayValue: true
+                });
+            } catch (error) {
+                console.error("Error generando el código de barras", error);
+                $('#codigo-barra').html('<p style="color: red;">Error generando el código de barras</p>');
+            }
+        } else {
+            $('#codigo-barra').html('<p style="color: red;">Código no detectado</p>');
+        }
+
+        $('#Barras').modal('show').on('shown.bs.modal', function() {
+            $('#nombre').focus();
+        });
+    }
+    function printModalContent() {
+        const content = document.getElementById('modal-content-to-print').innerHTML;
+        const printWindow = window.open('', '', 'width=800,height=600');
+        printWindow.document.write(`
+        <html>
+            <head>
+                <title>Imprimir</title>
+                <style>
+                    body { font-family: Arial, sans-serif; text-align: center; margin: 0; padding: 20px; }
+                    h1, h2 { margin: 10px 0; }
+                </style>
+            </head>
+            <body>
+                ${content}
+            </body>
+        </html>
+    `);
+        printWindow.document.close();
+        printWindow.print();
+    }
+</script>
 <script>
 $(document).ready(function() {
     $("#categoria_id").select2({
@@ -178,6 +289,7 @@ function agregar() {
         width: '100%'
     });
     $('#codigo').val(null);
+    $('#stock').val(null);
     $('#precio').val(null);
     $('#Agregar').modal('show').on('shown.bs.modal', function () {
         $('#nombre').focus();
@@ -187,12 +299,13 @@ function agregar() {
 
 
 
-function editar(id,nombre,codigo,precio,precio_doc) {
+function editar(id,nombre,codigo,precio,precio_doc,stock) {
     $('#text-formulario').text('Editar Producto');
     $('#id').val(id);
     $('#nombre').val(nombre).focus();
     $('#codigo').val(codigo);
     $('#precio').val(precio);
+    $('#stock').val(stock);
     $('#precio_doc').val(precio_doc);
     $('#Agregar').modal('show').on('shown.bs.modal', function () {
         $('#nombre').focus();

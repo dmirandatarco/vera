@@ -10,6 +10,7 @@ use App\Models\Producto;
 use App\Models\Serie;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
+use Picqer\Barcode\BarcodeGeneratorPNG;
 
 class ProductoController extends Controller
 {
@@ -51,7 +52,9 @@ class ProductoController extends Controller
             $popoverButton = '<a type="button" class="btn btn-primary" data-bs-container="body" data-bs-toggle="popover" data-bs-popover-color="default" data-bs-placement="top"
             data-bs-html="true"  data-bs-content="'.htmlspecialchars($text, ENT_QUOTES, 'UTF-8').'">'.$producto->stock.'</a>';
 
-            $editButton = '<button type="button" class="btn btn-info" onclick="editar('.$producto->id.',\''.$producto->nombre.'\',\''.$producto->codigo.'\','.$producto->precio.','.$producto->precio_doc.')"><i class="fa fa-edit"></i></button>';
+            $editButton = '<button type="button" class="btn btn-info" onclick="editar('.$producto->id.',\''.$producto->nombre.'\',\''.$producto->codigo.'\','.$producto->precio.','.$producto->precio_doc.','.$producto->stock.')"><i class="fa fa-edit"></i></button>';
+            $barrasButton = '<button type="button" class="btn btn-success" onclick="abrirModalCantidad('.$producto->id.',\''.$producto->nombre.'\',\''.$producto->codigo.'\','.$producto->precio.')"><i class="fe fe-eye"></i></button>';
+            $actionButtons = '<div class="d-flex gap-2">' . $editButton . $barrasButton . '</div>';
 
             $data[] = [
 
@@ -62,7 +65,7 @@ class ProductoController extends Controller
                 number_format($producto->precio_compra,2),
                 $popoverButton,
                 $producto->estado ? 'Activo':'Inactivo',
-                $editButton,
+                $actionButtons,
             ];
         }
         $response = [
@@ -84,6 +87,7 @@ class ProductoController extends Controller
 
     public function store(ProductoRequest $request)
     {
+        $request['stock'] = $request->stock ?? 0;
         if($request->id == null){
             $producto=Producto::create($request->all());
         }else{
@@ -180,6 +184,32 @@ class ProductoController extends Controller
         });
 
         return response()->json($productos);
-}
+    }
+
+    public function barTicketPDF(Request $request)
+    {
+        $producto = Producto::find($request->input('producto_id'));
+        $cantidad = $request->input('cantidad');
+
+        $generator = new BarcodeGeneratorPNG();
+        $barcode = $generator->getBarcode($producto->codigo, $generator::TYPE_CODE_128);
+
+        $barcodeBase64 = base64_encode($barcode);
+
+        $pdf = \PDF::loadView('pages.pdf.codigopdf', [
+                'producto' => $producto,
+                'barcodeBase64' => $barcodeBase64,
+                'cantidad' => $cantidad,
+            ])
+            ->setPaper([0, 0, 69, 40], 'portrait')
+            ->setOptions([
+                'margin-left' => 0,
+                'margin-right' => 0,
+                'margin-top' => 0,
+                'margin-bottom' => 0
+            ]);
+            
+        return $pdf->stream('Codigo-' . $producto->id . '.pdf');
+    }
 
 }

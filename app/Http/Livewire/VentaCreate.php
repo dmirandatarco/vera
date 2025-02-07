@@ -90,7 +90,7 @@ class VentaCreate extends Component
     {
         $this->clientes = Cliente::where('estado',1)->get();
         $this->medios = Medio::where('estado',1)->get();
-        $this->documentos = Documento::where('sucursal_id',\Auth::user()->sucursal_id)->where('nombre','!=','NOTA DE CRÉDITO')->get();
+        $this->documentos = Documento::where('sucursal_id',\Auth::user()->sucursal_id)->where('nombre','!=','NOTA DE CRÉDITO')->where('nombre','!=','FACTURA ELECTRÓNICA')->get();
         $this->usuarios = User::where('estado',1)->where('sucursal_id',\Auth::user()->sucursal_id)->get();
         if($trabajo){
             $this->idTrabajoEdit = $trabajo->id;
@@ -513,7 +513,7 @@ class VentaCreate extends Component
                 $venta->user_id = \Auth::user()->id;
                 $venta->cliente_id = $this->clienteId;
                 $venta->documento_id = $this->tipo_documento;
-                $venta->pago = ($this->tipo == 0) ? 0:1;
+                $venta->pago = 1;
 
                 if($valor == 1){
                     $monto=0;
@@ -570,6 +570,53 @@ class VentaCreate extends Component
                         $stock->producto_id = $detalle['productoId'];
                         $stock->cantidad = 0 - $detalle['cantidad'];
                         $stock->save();
+                    }
+
+                    if($documento->nombre == 'BOLETA DE VENTA ELECTRÓNICA' || $documento->nombre == 'FACTURA ELECTRÓNICA'){
+
+                        $company = ModelsCompany::find(1); 
+                        $totales = collect([
+                            'MtoOperGravadas' => $venta->detallesVenta()->sum(\DB::raw('cantidad * precio')) / 1.18,
+                            'MtoIGV' => ($venta->detallesVenta()->sum(\DB::raw('cantidad * precio')) / 1.18) * 0.18,
+                            'TotalImpuestos' => ($venta->detallesVenta()->sum(\DB::raw('cantidad * precio')) / 1.18) * 0.18,
+                            'ValorVenta' => $venta->detallesVenta()->sum(\DB::raw('cantidad * precio')) / 1.18,
+                            'SubTotal' => $venta->detallesVenta()->sum(\DB::raw('cantidad * precio')) / 1.18 + (($venta->detallesVenta()->sum(\DB::raw('cantidad * precio')) / 1.18) * 0.18),
+                            'MtoImpVenta' => $venta->detallesVenta()->sum(\DB::raw('cantidad * precio')) / 1.18 + (($venta->detallesVenta()->sum(\DB::raw('cantidad * precio')) / 1.18) * 0.18),
+                        ]);
+    
+                        $sunat = new SunatService();
+                        $see = $sunat->getSee($company);
+                        $invoice = $sunat->getInvoice($company,$documento,$venta,$totales);
+    
+                        $result = $see->send($invoice);
+    
+                        $response['xml'] = $see->getFactory()->getLastXml();
+                        $response['hash'] = (new XmlUtils())->getHashSign($response['xml']);
+                        $response['sunatResponse'] = $sunat->sunatResponse($result);
+                        $documentoSunat = DocumentoSunat::create([
+                            'xml' => $response['xml'],
+                            'hash' => $response['hash'],
+                            'respuesta' => $response['sunatResponse']['success'],
+                            'codeError' => $response['sunatResponse']['error']['code'] ?? null,
+                            'messageError' => $response['sunatResponse']['error']['message'] ?? null,
+                            'cdrZip' => $response['sunatResponse']['cdrZip'] ?? null,
+                            'codeCdr' => $response['sunatResponse']['cdrResponse']['code'] ?? null,
+                            'descripcionCdr' => $response['sunatResponse']['cdrResponse']['descripcion'] ?? null,
+                            'notesCdr' => isset($response['sunatResponse']['cdrResponse']['notes']) 
+                                            ? json_encode($response['sunatResponse']['cdrResponse']['notes'])
+                                            : null,
+                            'venta_id' => $venta->id,
+                        ]);
+    
+                        if($response['sunatResponse']['success'] && $response['sunatResponse']['cdrResponse']['code'] == 0){
+                            $venta->sunat = 1;
+                            $venta->save();
+                            session()->flash('warning', 'Comprobante Electronico aprobado');
+                        }else{
+                            $venta->sunat = 0;
+                            $venta->save();
+                            session()->flash('dark', 'Comprobante Electronico rechazado');
+                        }
                     }
                 }
             }

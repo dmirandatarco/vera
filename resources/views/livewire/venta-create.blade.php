@@ -19,7 +19,7 @@
                         <div class="row">
                             <div class="mb-3 col-md-4">
                                 <label class="form-label" for="tipo_documento">Comprobante</label>
-                                <select class="js-example-basic-single form-select" id="tipo_documento" wire:model="tipo_documento" data-width="100%" tabindex="1" @disabled(true)>
+                                <select class="js-example-basic-single form-select" id="tipo_documento" wire:model="tipo_documento" data-width="100%" tabindex="1">
                                     <option value="">SELECCIONE</option>
                                     @foreach($documentos as $documento)
                                         <option value="{{$documento->id}}">{{$documento->nombre}}</option>
@@ -63,9 +63,22 @@
                                 </div>
                             </div>
                             <div class="col-md-2" style="color: red;">
-                                <label class="form-label" style="color: red;">Total</label>
-                                <h3 >{{number_format($total,2)}}</h3>
+                                
+                                <div class="flex" style="flex:row">
+                                    <div>
+                                    <label class="form-label" style="color: red;">Total</label>
+                                    <h3 >{{number_format($total,2)}}</h3>
+                                    </div>
+                                    <div>
+                                    @if($total > 0)
+
+                                    <button class="btn btn-danger me-2" type="button" wire:click="registrarVenta(0)" wire:loading.attr="disabled" id="guardarCobrar">Guardar (F9)</button>
+                                    @endif
+                                    </div>
+                                </div>
                             </div>
+                            
+                            
                         </div>
                     </div>
                     <div class="col-md-12 col-sm-12 text-center mt-3">
@@ -170,8 +183,9 @@
                         @endif
                         @if($total > 0)
                             <div class="d-flex justify-content-end mt-3">
+                            {{-- 
                                 <button class="btn btn-danger me-2" type="button" wire:click="registrarVenta(0)" wire:loading.attr="disabled" id="guardarCobrar">Guardar (F9)</button>
-                                {{-- @if($tipo_documento != '')
+                                @if($tipo_documento != '')
                                     <button type="button" wire:click="registrarVenta(1)" wire:loading.attr="disabled" class="btn btn-success me-2" id="efectuarDirecto">Efectuar Directo (F10)</button>
                                     <button class="btn btn-primary me-2" type="button"  wire:click="modalCobrar()" wire:loading.attr="disabled" id="cobrarVenta">Cobrar Venta (F11)</button>
                                 @endif --}}
