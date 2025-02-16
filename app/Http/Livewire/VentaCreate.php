@@ -34,7 +34,7 @@ class VentaCreate extends Component
     public $cantidadProducto;
     public $contDetalles = -1;
 
-    public $nuevotipo_documento;
+    public $nuevotipo_documento = 'DNI';
     public $nuevodocumento;
     public $nuevonombrecomercial;
     public $nuevonombrerazon;
@@ -496,6 +496,24 @@ class VentaCreate extends Component
             DB::beginTransaction();
 
             $mytime= Carbon::now('America/Lima');
+
+            if($this->nuevodocumento && $this->nuevonombrerazon)
+            {
+                $cliente = Cliente::where('documento','DNI')->where('num_documento',$this->nuevodocumento)
+                ->where('razon_social',$this->nuevonombrerazon)->first();
+                if(!$cliente){
+                    $cliente=Cliente::create([
+                        'documento' => 'DNI',
+                        'num_documento' => $this->nuevodocumento,
+                        'razon_social' => $this->nuevonombrerazon,
+                        'nombre_comercial' => $this->nuevonombrerazon,
+                        'direccion' => 'Cusco',
+                        'sunat' => '1',
+                    ]);
+                }
+            }else{
+                $cliente = Cliente::find(1);
+            }
 
             if($this->tipo_documento != null){
                 $documento = Documento::find($this->tipo_documento);

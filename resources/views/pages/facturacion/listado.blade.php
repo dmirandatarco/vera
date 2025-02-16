@@ -278,14 +278,6 @@
                         <div id="collapseTwo2" class="panel-collapse collapse show" role="tabpanel" aria-expanded="false">
                             <div class="panel-body p-0 ">
                                 <div class="table-responsive">
-                                    <table class="table table-bordered table-hover table-primary mg-b-0 text-md-nowrap table-side" >
-                                        <thead>
-                                            <tr>
-                                                <th>DIP:</th>
-                                                <th>ADD:</th>
-                                            </tr>
-                                        </thead>
-                                    </table>
                                     <table class="table table-bordered table-hover table-primary mg-b-0 text-md-nowrap table-side">
                                         <thead>
                                             <tr>
@@ -442,7 +434,7 @@
                     detalles.forEach(function(detalle) {
                         detallesHtml += '<tr>' +
                                             '<td scope="row">' + detalle.cantidad + '</td>' +
-                                            '<td class="descripcion-table-side" style="font-size:0.75rem">' + detalle.producto.categoria.abreviatura+' '+detalle.producto.nombre + '</td>' +
+                                            '<td class="descripcion-table-side" style="font-size:0.75rem">' + detalle.producto.codigo+' '+detalle.producto.nombre + '</td>' +
                                             '<td>' + detalle.precio + '</td>' +
                                         '</tr>';
                     });

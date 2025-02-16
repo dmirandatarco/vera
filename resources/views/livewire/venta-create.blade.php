@@ -29,25 +29,26 @@
                                     <span class="error-message" style="color:red">{{ $message }}</span>
                                 @enderror
                             </div>
-                            <div class="mb-3 col-md-6">
-                                <label class="form-label" for="clienteId">Cliente (F7 Buscar Cliente)</label>
-                                <div wire:ignore>
-                                    <select class="js-example-basic-single form-select" id="clienteId" wire:model.defer="clienteId" data-width="100%" tabindex="2">
-                                        <option value="">SELECCIONE</option>
-                                        @foreach($clientes as $cliente)
-                                            <option value="{{$cliente->id}}">{{$cliente?->razon_social}}  {{ $cliente?->nombre_comercial}} - {{ $cliente?->num_documento}} </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                @error('clienteId')
+                            <div class="mb-3 col-md-3">
+                                <label class="form-label" for="clienteId">Nº Documento</label>
+                                <input type="text" name="nuevodocumento" id="nuevodocumento" class="form-control" wire:model.defer="nuevodocumento">
+                                @error('nuevodocumento')
                                     <span class="error-message" style="color:red">{{ $message }}</span>
                                 @enderror
                             </div>
-                            <div class="mt-4 col-md-2">
-                                <button type="button" class="btn btn-primary mb-2 mb-md-0 " wire:click="abrirmodalcliente">
-                                    <i class="fa fa-plus-circle"></i><b> &nbsp; Cliente (F6)</b>
+                            <div class="mt-4 col-md-1">
+                                <button type="button" class="btn btn-primary mb-2 mb-md-0 " wire:click="searchDocumento">
+                                    <i class="fa fa-search"></i>
                                 </button>
                             </div>
+                            <div class="mb-3 col-md-4">
+                                <label class="form-label" for="clienteId">Nombre</label>
+                                <input type="text" name="nuevonombrerazon" id="nuevonombrerazon" class="form-control" wire:model.defer="nuevonombrerazon">
+                                @error('nuevonombrerazon')
+                                    <span class="error-message" style="color:red">{{ $message }}</span>
+                                @enderror
+                            </div>
+                            
                             <div class="mb-3 col-md-2">
                                 <label class="form-label" for="cantidad_final">CANT.</label>
                                 <input type="number" name="cantidad_final" class="form-control" wire:model.defer="cantidad_final" tabindex="3">

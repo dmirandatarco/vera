@@ -586,18 +586,6 @@
                     });
                     $('#pagosVentaContainer').html(pagosHtml);
                     $('#trabajosContainer').empty();
-                    var trabajos = data.trabajos;
-                    var trabajosHtml = '';
-                    trabajos.forEach(function(trabajo) {
-                        trabajosHtml += '<tr>' +
-                                        '<td scope="row">' + (trabajo.numero) + '</td>' +
-                                        '<td scope="row">' + (trabajo.fecha) + '</td>' +
-                                        '<td>' + trabajo.user.nombre + '</td>' +
-                                        '<td>' + trabajo.maquina.nombre + '</td>' +
-                                        '<td><a href="{{ url('ventas/ticketpedido') }}/' + trabajo.id + '" target="_blank" class="btn btn-primary button-icon"><i class="fas fa-file"></i></a></td>' +
-                                    '</tr>';
-                    });
-                    $('#trabajosContainer').html(trabajosHtml);
                     $('#btnImprimir').attr("href", `{{ url('ventas/ticketpdf') }}/${data.id}`);
                     $('#btnImprimir').attr("target", "_blank");
                     var Pago = {{ $caja ? 'true' : 'false' }};
