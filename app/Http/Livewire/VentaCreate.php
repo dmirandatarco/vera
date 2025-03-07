@@ -529,7 +529,7 @@ class VentaCreate extends Component
                 $venta->sucursal_id = \Auth::user()->sucursal->id;
                 $venta->almacen_id = \Auth::user()->sucursal->almacen->id;
                 $venta->user_id = \Auth::user()->id;
-                $venta->cliente_id = $this->clienteId;
+                $venta->cliente_id = $cliente->id;
                 $venta->documento_id = $this->tipo_documento;
                 $venta->pago = 1;
 
